@@ -1,2 +1,11 @@
-{"courseType":"3A",
-"slotIdList":[2172005],"encryptSlotList":[{"slotIdEnc":"PcF0TGlEI2s=","bookingProgressEnc":"fMeF4Ju7WJc5ZKMtevViogt+wHn4xVgI"}],"insInstructorId":"","subVehicleType":null}
+{
+  "courseType":"3A",
+  "slotIdList":[2172005],
+  "encryptSlotList":[
+    {
+      "slotIdEnc":"PcF0TGlEI2s=",
+      "bookingProgressEnc":"fMeF4Ju7WJc5ZKMtevViogt+wHn4xVgI"
+    }],
+  "insInstructorId":"",
+  "subVehicleType":null
+}

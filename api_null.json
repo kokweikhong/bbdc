@@ -1,13 +1,17 @@
-{"success":true,
+{
+	"success":true,
 	"message":null,
 	"code":0,
 	"routeToURL":null,
-"data":{"releasedSlotMonthList":[
-	{"slotMonthEn":"Apr'23","slotMonthYm":"202304"},
-	{"slotMonthEn":"Aug'23","slotMonthYm":"202308"},
-	{"slotMonthEn":"Sep'23","slotMonthYm":"202309"},
-	{"slotMonthEn":"Oct'23","slotMonthYm":"202310"}],
-"releasedSlotListGroupByDay":null,
-"accountBal":78.2700,
-"couNegActive":"0"},
-"resultObject":null}
+	"data":{
+		"releasedSlotMonthList":[
+			{"slotMonthEn":"Apr'23","slotMonthYm":"202304"},
+			{"slotMonthEn":"Aug'23","slotMonthYm":"202308"},
+			{"slotMonthEn":"Sep'23","slotMonthYm":"202309"},
+			{"slotMonthEn":"Oct'23","slotMonthYm":"202310"}],
+		"releasedSlotListGroupByDay":null,
+		"accountBal":78.2700,
+		"couNegActive":"0"
+	    },
+	"resultObject":null
+}

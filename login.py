@@ -20,13 +20,33 @@ def login():
         print("Authentication failed:", resp.text)
 
 
-def get_table(bearer_token):
+def get_jsessionid(bearer_token):
+    url = "https://booking.bbdc.sg/bbdc-back-service/api/account/listAccountCourseType"
+    headers = {
+                "Accept": "application/json",
+                "Authorization": f"Bearer {str(bearer_token)}",
+                "Content-Type": "application/json"
+              }
+    # payload = {}
+    #
+    #     "Cookie": f"bbdc-token=Bearer%20{str(bearer_token)}",
+    # "JSESSIONID": ""
+    resp = requests.post(url, headers=headers, data="{}")
+    if resp.status_code == 200:
+        return resp.text
+        # auth_token = resp.json()["data"]["activeCourseList"]["authToken"]
+        # return auth_token
+    else:
+        print("Authentication failed:", resp.text)
+
+
+def get_table(bearer_token, auth_token):
     url = "https://booking.bbdc.sg/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"
     headers = {
         "Authorization": f"Bearer {str(bearer_token)}",
         "Content-Type": "application/json"
     }
-    data = '{\
+    payload = '{\
             "courseType": "3A",\
             "insInstructorId": "",\
             "releasedSlotMonth": "202308",\
@@ -35,7 +55,7 @@ def get_table(bearer_token):
             "subStageSubNo": Null\
            }'
 
-    resp = requests.post(url, headers=headers, data=json.loads(data))
+    resp = requests.post(url, headers=headers, data=json.loads(payload))
 
     if resp.status_code != 200:
         print('error: ' + str(resp.status_code))
@@ -47,4 +67,6 @@ def get_table(bearer_token):
 if __name__ == '__main__':
     bearer_token = login()
     print(bearer_token)
+    auth_token = get_jsessionid(bearer_token)
+    print(auth_token)
     # get_table(bearer_token)

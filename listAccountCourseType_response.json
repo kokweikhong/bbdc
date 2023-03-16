@@ -1,0 +1,45 @@
+{
+  "success":true,
+  "message":null,
+  "code":0,
+  "routeToURL":null,
+  "data":{
+    "notActiveCourseList":[
+      {
+        "accountId":null,
+        "traineeNric":null,
+        "courseType":"3A",
+        "accountBal":0.0000,
+        "enrExpiryDateStr":"06-11-2018",
+        "enrGraduateDateStr":null,
+        "enrTerminateDateStr":"11-02-2019",
+        "enrExpiryDate":"2018-11-05T16:00:00.000+00:00",
+        "enrGraduateDate":null,
+        "enrTerminateDate":"2019-02-10T16:00:00.000+00:00",
+        "courseStatus":"Terminated","canDoBooking":false,
+        "enrCarModel":"ATC",
+        "canDoPracticalBooking":true,
+        "alertMessage":null,
+        "handBookInd":"Y",
+        "authToken":"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJBQ0NfSUQiOiI3NjQ5NTgiLCJUUkFfTE9HSU4iOiIxMjBXMjcwMjE5ODkiLCJpc3MiOiJCQkRDIiwiTlJJQyI6IkczNTIwMTIwVyIsImV4cCI6MTMwNTI3OTY4NjMzfQ.22IpRN4wjF_nx47otkomBQyagFZ2Q6h3zieaph79qAA"
+      }],
+    "activeCourseList":[{
+      "accountId":null,
+      "traineeNric":null,
+      "courseType":"3A",
+      "accountBal":78.2700,
+      "enrExpiryDateStr":"08-01-2024",
+      "enrGraduateDateStr":null,
+      "enrTerminateDateStr":null,
+      "enrExpiryDate":"2024-01-07T16:00:00.000+00:00",
+      "enrGraduateDate":null,
+      "enrTerminateDate":null,
+      "courseStatus":"Active",
+      "canDoBooking":true,
+      "enrCarModel":"ATC",
+      "canDoPracticalBooking":true,
+      "alertMessage":null,
+      "handBookInd":"Y",
+      "authToken":"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJBQ0NfSUQiOiIxMDI1MzgwIiwiVFJBX0xPR0lOIjoiMTIwVzI3MDIxOTg5IiwiaXNzIjoiQkJEQyIsIk5SSUMiOiJHMzUyMDEyMFciLCJleHAiOjEzMDUyNzk2ODYzM30.5uFZAF_yksY378Tb8i-0rZlG3ofv4C7VArY1OyMnkrE"
+    }]},
+  "resultObject":null}

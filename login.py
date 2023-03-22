@@ -5,6 +5,22 @@ from datetime import datetime
 import calendar
 import time
 
+common_header = {
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'en-US,en;q=0.9','Origin': 'https://booking.bbdc.sg',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json;charset=UTF-8',
+            'DNT': '1',
+            'Referer': 'https://booking.bbdc.sg/',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
+            'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"'
+             }
+
 
 def get_weekends(year=2023, month=3):
     # Set the year and month you want to get the weekends for
@@ -49,26 +65,12 @@ def get_jsessionid(token):
     url = "https://booking.bbdc.sg/bbdc-back-service/api/account/listAccountCourseType"
     payload = r"{}"
     bearer_token = token[7:]
-    headers = {
-      'Accept': 'application/json, text/plain, */*',
-      'Accept-Language': 'en-US,en;q=0.9',
+    unique_headers = {
       'Authorization': f'Bearer {str(bearer_token)}',
-      'Connection': 'keep-alive',
-      'Content-Type': 'application/json;charset=UTF-8',
       'Cookie': f'bbdc-token=Bearer%20{str(bearer_token)}',
-      'DNT': '1',
       'JSESSIONID': '',
-      'Origin': 'https://booking.bbdc.sg',
-      'Referer': 'https://booking.bbdc.sg/',
-      'Sec-Fetch-Dest': 'empty',
-      'Sec-Fetch-Mode': 'cors',
-      'Sec-Fetch-Site': 'same-origin',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-      'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"'
     }
-
+    headers = {**unique_headers, **common_header}
     response = requests.request("POST", url, headers=headers, data=payload)
     if response.status_code == 200 and response.json()['success']:
         # return response.text
@@ -80,8 +82,6 @@ def get_jsessionid(token):
 
 
 def get_slotlist(bearer_token, auth, yy, mm):
-    # url = "https://booking.bbdc.sg/bbdc-back-service/api/account/getUserProfile"
-    # payload = "{}"
     url = "https://booking.bbdc.sg/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"
     payload = {
                 "courseType": "3A",
@@ -92,32 +92,16 @@ def get_slotlist(bearer_token, auth, yy, mm):
                 "subStageSubNo": None
              }
     auth_token = auth[7:]
-    headers = {
-      'Accept': 'application/json, text/plain, */*',
-      'Accept-Language': 'en-US,en;q=0.9',
+    unique_headers = {
       'Authorization': f'Bearer {str(bearer_token)}',
-      'Connection': 'keep-alive',
-      'Content-Type': 'application/json;charset=UTF-8',
       'Cookie': f'bbdc-token=Bearer%20{str(bearer_token)}',
-      'DNT': '1',
       'JSESSIONID': f'Bearer {str(auth_token)}',
-      'Origin': 'https://booking.bbdc.sg',
-      'Referer': 'https://booking.bbdc.sg/',
-      'Sec-Fetch-Dest': 'empty',
-      'Sec-Fetch-Mode': 'cors',
-      'Sec-Fetch-Site': 'same-origin',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-      'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"'
     }
+    headers = {**unique_headers, **common_header}
     response = requests.request("POST", url, headers=headers,
                                 data=json.dumps(payload))
     if response.status_code == 200 and response.json()['success']:
-        # return response.text
         new_data = response.json()['data']
-        # df = pd.json_normalize(data, record_path=['releasedSlotListGroupByDay'])
-        # print(type(df))
         return new_data
     else:
         print("Authentication failed:", response.text)
@@ -166,31 +150,18 @@ def create_booking_payload(slot_id, enc_slot_id, enc_progress):
 def submit_booking(bearer_token, auth, payload):
     url = "https://booking.bbdc.sg/bbdc-back-service/api/booking/c3practical/callBookC3PracticalSlot"
     auth_token = auth[7:]
-    headers = {
-      'Accept': 'application/json, text/plain, */*',
-      'Accept-Language': 'en-US,en;q=0.9',
+    unique_headers = {
       'Authorization': f'Bearer {str(bearer_token)}',
-      'Connection': 'keep-alive',
-      'Content-Type': 'application/json;charset=UTF-8',
       'Cookie': f'bbdc-token=Bearer%20{str(bearer_token)}',
-      'DNT': '1',
       'JSESSIONID': f'Bearer {str(auth_token)}',
-      'Origin': 'https://booking.bbdc.sg',
-      'Referer': 'https://booking.bbdc.sg/',
-      'Sec-Fetch-Dest': 'empty',
-      'Sec-Fetch-Mode': 'cors',
-      'Sec-Fetch-Site': 'same-origin',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-      'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"'
     }
+    headers = {**unique_headers, **common_header}
     response = requests.request("POST", url, headers=headers,
                                 data=json.dumps(payload))
     if response.status_code == 200 and response.json()['success']:
         data = response.json()['data']
 
-        return "success"
+        return "success", data
     else:
         return "failed"
 
@@ -200,7 +171,7 @@ if __name__ == '__main__':
     print(token)
     bearer_token, auth_token = get_jsessionid(token)
     print(auth_token)
-    month = 10
+    month = 3
     year = 2023
     count = 0
     while True:
@@ -219,21 +190,21 @@ if __name__ == '__main__':
                 payload = create_booking_payload(slot_id, enc_slot_id,
                                                  enc_progress)
                 print(payload)
-                status = submit_booking(bearer_token, auth_token, payload)
+                status, data = submit_booking(bearer_token, auth_token, payload)
                 if status == "failed":
                     break
                 index += 1
                 balance -= 77.76
-                # # send message
-                # success = df[df['slotId'] == slot_id]
-                # session = success.slotRefName
-                # date_ = success.slotRefDate
-                # start_time = success.startTime
-                # end_time = success.endTime
-                # print(f"Success: {session} {date_} {start_time} {end_time}")
-                # data = 
+                # send message
+                success = df[df['slotId'] == slot_id]
+                session = success.slotRefName
+                date_ = success.slotRefDate
+                start_time = success.startTime
+                end_time = success.endTime
+                print(f"Success: {session} {date_} {start_time} {end_time}")
+                print(data)
             time.sleep(1)
             break
         time.sleep(1)
-        if count == 10:
+        if count == 20:
             break

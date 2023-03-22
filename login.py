@@ -140,11 +140,11 @@ def get_mychoice(new_data, year, month):
         df = pd.concat([df, temp_df], ignore_index=True)
     wkdays7 = df[df['slotRefName'] == 'SESSION 7']
     wkends = df[(df['lista'].isin(get_weekends(year, month))) & (df['slotRefName'] != 'SESSION 1')]
-    print(wkdays7)
+    # print(wkdays7)
     my_choice = pd.concat([wkdays7, wkends], ignore_index=True)
-    print(my_choice)
+    # print(my_choice)
     chosen = my_choice[["slotId", "slotIdEnc", "bookingProgressEnc"]]
-    print(chosen)
+    # print(chosen)
     return chosen, balance, df
 
 
@@ -187,7 +187,8 @@ def submit_booking(bearer_token, auth, payload):
     }
     response = requests.request("POST", url, headers=headers,
                                 data=json.dumps(payload))
-    if response.status_code == 200 and response.json()['success'] == True:
+    if response.status_code == 200 and response.json()['success']:
+        data = response.json()['data']
 
         return "success"
     else:
@@ -211,22 +212,26 @@ if __name__ == '__main__':
             index = 0
             while balance > 78 and not index >= len(chosen):
                 # for row in chosen.itertuples():
-                slot_id = chosen.loc[index, 'slotId']
+                slot_id = chosen.loc[index, 'slotId'].item()
+                # print(slot_id)
                 enc_slot_id = chosen.loc[index, 'slotIdEnc']
                 enc_progress = chosen.loc[index, 'bookingProgressEnc']
                 payload = create_booking_payload(slot_id, enc_slot_id,
                                                  enc_progress)
                 print(payload)
                 status = submit_booking(bearer_token, auth_token, payload)
+                if status == "failed":
+                    break
                 index += 1
                 balance -= 77.76
-                # send message
-                success = df[df['slotId'] == slot_id]
-                session = success.slotRefName
-                date_ = success.slotRefDate
-                start_time = success.startTime
-                end_time = success.endTime
-                print(f"Success: {session} {date_} {start_time} {end_time}")
+                # # send message
+                # success = df[df['slotId'] == slot_id]
+                # session = success.slotRefName
+                # date_ = success.slotRefDate
+                # start_time = success.startTime
+                # end_time = success.endTime
+                # print(f"Success: {session} {date_} {start_time} {end_time}")
+                # data = 
             time.sleep(1)
             break
         time.sleep(1)

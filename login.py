@@ -207,11 +207,11 @@ def extract(minutes=19):
                     index += 1
                     balance -= 77.76
                     # send message
-                    success = str(df[df['slotId'] == slot_id])
-                    session = str(success.slotRefName)
-                    date_ = str(success.slotRefDate)
-                    start_time = str(success.startTime)
-                    end_time = str(success.endTime)
+                    success = status
+                    session = str(data['slotRefName'])
+                    date_ = str(data['slotRefDate'])
+                    start_time = str(data['startTime'])
+                    end_time = str(data['endTime'])
                     print(f"Success: {session} {date_} {start_time} {end_time}")
                     # print(data)
                     return success, session, date_, start_time, end_time

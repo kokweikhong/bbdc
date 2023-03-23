@@ -181,6 +181,7 @@ def extract(minutes=19):
         # print(count)
         # count += 1
         new_data = get_slotlist(bearer_token, auth_token, year, str(month).zfill(2))
+        balance = new_data['accountBal']
         # print(new_data)
         if new_data['releasedSlotListGroupByDay'] is not None:
             check = next(iter(new_data['releasedSlotListGroupByDay'].values()))[0]
@@ -220,7 +221,7 @@ def extract(minutes=19):
 
         # if count == 20:
         #     break
-    return "Unable find appropriate bookings."
+    return f"Unable find appropriate bookings.{balance}"
 
 
 if __name__ == '__main__':

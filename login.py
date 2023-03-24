@@ -114,7 +114,7 @@ def get_slotlist(bearer_token, auth, yy, mm):
         new_data = response.json()['data']
         return new_data
     else:
-        print("Authentication failed:", response.text)
+        print("Error at get_slotlist", response.text)
         print(response.text)
         return None
 

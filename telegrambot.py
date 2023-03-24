@@ -25,7 +25,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO)
 logger = logging.getLogger(__name__)
-offset = login.get_now_with_offset()
+
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -50,6 +50,7 @@ async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     # await update.message.reply_text(update.message.text)
     in_msg = update.message.text.lower()
+    offset = login.get_now_with_offset()
     if in_msg == "book":
         reply = f"Sure Sir/Ma'am, right away. {in_msg}ing now..Please come back again at {offset} to check"
         await update.message.reply_text(reply)

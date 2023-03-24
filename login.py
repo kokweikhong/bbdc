@@ -231,11 +231,12 @@ def extract(minutes=19):
                     break
             time.sleep(1.2)
         except Exception as err:
+            print(err)
             return f"{err}"
 
         # if count == 20:
         #     break
-    return f"Unable find appropriate bookings.Balance:{balance_}"
+    return f"Unable find appropriate bookings. Balance:{balance_}"
 
 
 if __name__ == '__main__':

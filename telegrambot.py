@@ -54,7 +54,10 @@ async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if in_msg == "book":
         reply = f"Sure Sir/Ma'am, right away. {in_msg}ing now..Please come back again at {offset} to check"
         await update.message.reply_text(reply)
-        result = login.extract()
+        try:
+            result = login.extract()
+        except Exception as e:
+            result = e
     else:
         result = f"{update.message.text}ing function is not implemented yet."
 

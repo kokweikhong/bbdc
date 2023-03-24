@@ -22,11 +22,10 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
+offset = login.get_now_with_offset()
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -35,39 +34,45 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # reply_markup=ForceReply(selective=True)
     reply_keyboard = [["Book", "Check"]]
     await update.message.reply_html(
-                                    rf"Hi {user.mention_html()}!",
+                                    rf"Hi {user.mention_html()}! Please select book or check",
                                     reply_markup=ReplyKeyboardMarkup(
                                     reply_keyboard, one_time_keyboard=True,
                                     input_field_placeholder="Book or Check?"),
                                     )
 
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /help is issued."""
+async def help_command(update: Update,
+                       context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("Help!")
 
 
 async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     # await update.message.reply_text(update.message.text)
-    await update.message.reply_text("Sure sir, right away. Running Now..")
-    # sleep(3)
-    # print(update.message.text)
-    result = login.extract()
+    in_msg = update.message.text.lower()
+    if in_msg == "book":
+        reply = f"Sure Sir/Ma'am, right away. {in_msg}ing now..Please come back again at {offset} to check"
+        await update.message.reply_text(reply)
+        result = login.extract()
+    else:
+        result = f"{update.message.text}ing function is not implemented yet."
+
     await update.message.reply_text(result)
 
 
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6132873137:AAEagPXJLBDb8j2GpkUGQ1zqQmmgIOx7CB4").build()
+    mytoken = "6132873137:AAEagPXJLBDb8j2GpkUGQ1zqQmmgIOx7CB4"
+    application = Application.builder().token(mytoken).build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_command))
 
     # on non command i.e message - echo the message on Telegram
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, run_task))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND,
+                                           run_task))
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling()

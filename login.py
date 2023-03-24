@@ -1,9 +1,10 @@
 import json
 import requests
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import calendar
 import time
+
 
 common_header = {
             'Accept': 'application/json, text/plain, */*',
@@ -20,6 +21,14 @@ common_header = {
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"'
              }
+
+
+def get_now_with_offset(offset_hours: int = 19):
+    # turn offset hours to timedelta object
+    offset_td = timedelta(minutes=offset_hours)
+    # utcnow is the GMT time with no offset hours
+    now = datetime.now()
+    return (now + offset_td).strftime('%H:%M')
 
 
 def get_weekends(year=2023, month=3):
@@ -143,7 +152,6 @@ def create_booking_payload(slot_id, enc_slot_id, enc_progress):
                      }],
                 "insInstructorId": "",
                 "subVehicleType": None}
-
     return payload
 
 
@@ -181,7 +189,7 @@ def extract(minutes=19):
         # print(count)
         # count += 1
         new_data = get_slotlist(bearer_token, auth_token, year, str(month).zfill(2))
-        balance = new_data['accountBal']
+        balance_ = new_data['accountBal']
         # print(new_data)
         if new_data['releasedSlotListGroupByDay'] is not None:
             check = next(iter(new_data['releasedSlotListGroupByDay'].values()))[0]
@@ -212,16 +220,17 @@ def extract(minutes=19):
                     date_ = str(data['slotRefDate'])
                     start_time = str(data['startTime'])
                     end_time = str(data['endTime'])
-                    print(f"Success: {session} {date_} {start_time} {end_time}")
+                    message = f"{success}|{session}|{date_}|{start_time}|{end_time}|{balance}"
+                    print(message)
                     # print(data)
-                    return success, session, date_, start_time, end_time
+                    return message
                 time.sleep(1)
                 break
         time.sleep(0.8)
 
         # if count == 20:
         #     break
-    return f"Unable find appropriate bookings.{balance}"
+    return f"Unable find appropriate bookings.Balance:{balance_}"
 
 
 if __name__ == '__main__':

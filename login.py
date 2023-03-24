@@ -8,7 +8,8 @@ import time
 
 common_header = {
             'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'en-US,en;q=0.9','Origin': 'https://booking.bbdc.sg',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Origin': 'https://booking.bbdc.sg',
             'Connection': 'keep-alive',
             'Content-Type': 'application/json;charset=UTF-8',
             'DNT': '1',
@@ -185,48 +186,52 @@ def extract(minutes=19):
     # count = 0
     # while True:
     t_end = time.time() + 60 * minutes
+    balance_ = ""
     while time.time() < t_end:
         # print(count)
         # count += 1
-        new_data = get_slotlist(bearer_token, auth_token, year, str(month).zfill(2))
-        balance_ = new_data['accountBal']
-        # print(new_data)
-        if new_data['releasedSlotListGroupByDay'] is not None:
-            check = next(iter(new_data['releasedSlotListGroupByDay'].values()))[0]
-            check_val = check['slotRefName']
-            check_date = check['slotRefDate']
-            if check_val == "SESSION 7" or check_date in weekends:
-                chosen, balance, df = get_mychoice(new_data, year, month)
-                index = 0
-                while balance > 78 and not index >= len(chosen):
-                    # for row in chosen.itertuples():
-                    slot_id = chosen.loc[index, 'slotId'].item()
-                    # print(slot_id)
-                    enc_slot_id = chosen.loc[index, 'slotIdEnc']
-                    enc_progress = chosen.loc[index, 'bookingProgressEnc']
-                    payload = create_booking_payload(slot_id, enc_slot_id,
-                                                     enc_progress)
-                    # print(payload)
-                    status, data = submit_booking(bearer_token, auth_token,
-                                                  payload)
-                    if status == "failed":
-                        return "Failed to book."
-                        break
-                    index += 1
-                    balance -= 77.76
-                    # send message
-                    success = status
-                    session = str(data['slotRefName'])
-                    date_ = str(data['slotRefDate'])
-                    start_time = str(data['startTime'])
-                    end_time = str(data['endTime'])
-                    message = f"{success}|{session}|{date_}|{start_time}|{end_time}|{balance}"
-                    print(message)
-                    # print(data)
-                    return message
-                time.sleep(1)
-                break
-        time.sleep(0.8)
+        try:
+            new_data = get_slotlist(bearer_token, auth_token, year, str(month).zfill(2))
+            balance_ = new_data['accountBal']
+            # print(new_data)
+            if new_data['releasedSlotListGroupByDay'] is not None:
+                check = next(iter(new_data['releasedSlotListGroupByDay'].values()))[0]
+                check_val = check['slotRefName']
+                check_date = check['slotRefDate']
+                if check_val == "SESSION 7" or check_date in weekends:
+                    chosen, balance, df = get_mychoice(new_data, year, month)
+                    index = 0
+                    while balance > 78 and not index >= len(chosen):
+                        # for row in chosen.itertuples():
+                        slot_id = chosen.loc[index, 'slotId'].item()
+                        # print(slot_id)
+                        enc_slot_id = chosen.loc[index, 'slotIdEnc']
+                        enc_progress = chosen.loc[index, 'bookingProgressEnc']
+                        payload = create_booking_payload(slot_id, enc_slot_id,
+                                                         enc_progress)
+                        # print(payload)
+                        status, data = submit_booking(bearer_token, auth_token,
+                                                      payload)
+                        if status == "failed":
+                            return "Failed to book."
+                            break
+                        index += 1
+                        balance -= 77.76
+                        # send message
+                        success = status
+                        session = str(data['slotRefName'])
+                        date_ = str(data['slotRefDate'])
+                        start_time = str(data['startTime'])
+                        end_time = str(data['endTime'])
+                        message = f"{success}|{session}|{date_}|{start_time}|{end_time}|{balance}"
+                        print(message)
+                        # print(data)
+                        return message
+                    time.sleep(1)
+                    break
+            time.sleep(1.2)
+        except Exception as err:
+            return f"{err}"
 
         # if count == 20:
         #     break

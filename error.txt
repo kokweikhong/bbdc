@@ -1,0 +1,4 @@
+Authentication failed: {"timestamp":"2023-03-24T08:36:26.380+00:00","status":500,"error":"Internal Server Error","path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"}
+{"timestamp":"2023-03-24T08:36:26.380+00:00","status":500,"error":"Internal Server Error","path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"}
+'NoneType' object is not subscriptable
+'NoneType' object is not subscriptable

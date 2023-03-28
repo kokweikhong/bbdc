@@ -60,8 +60,8 @@ def login():
                 "Content-Type": "application/json"
               }
     params = {
-        "userId": "120W27021989",
-        "userPass": "272890"
+        "userId": "",
+        "userPass": ""
          }
     resp = requests.post(URL, headers=headers, data=json.dumps(params))
     if resp.status_code == 200:

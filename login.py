@@ -1,68 +1,21 @@
 import json
+import utils
 import requests
 import pandas as pd
-from datetime import datetime, timedelta
-import calendar
 import time
 
 
-common_header = {
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Origin': 'https://booking.bbdc.sg',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/json;charset=UTF-8',
-            'DNT': '1',
-            'Referer': 'https://booking.bbdc.sg/',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36',
-            'sec-ch-ua': '"Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"'
-             }
-
-
-def get_now_with_offset(offset_hours: int = 19):
-    # turn offset hours to timedelta object
-    offset_td = timedelta(minutes=offset_hours)
-    # utcnow is the GMT time with no offset hours
-    now = datetime.now()
-    return (now + offset_td).strftime('%H:%M')
-
-
-def get_weekends(year=2023, month=3):
-    # Set the year and month you want to get the weekends for
-    # Get the calendar for the given month
-    cal = calendar.monthcalendar(year, month)
-    # Iterate over the weeks in the calendar
-    weekends = []
-    for week in cal:
-        # Check if Saturday or Sunday is in the week
-        if week[5] != 0:
-            # Saturday is in the week
-            sat = f'{year}-{month}-{week[5]}'
-            sat_object = datetime.strptime(sat, '%Y-%m-%d')
-            weekends.append(sat_object.strftime("%Y-%m-%d %H:%M:%S"))
-        if week[6] != 0:
-            # Sunday is in the week
-            sun = f'{year}-{month}-{week[6]}'
-            sun_object = datetime.strptime(sun, '%Y-%m-%d')
-            weekends.append(sun_object.strftime("%Y-%m-%d %H:%M:%S"))
-    return weekends
+common_header = utils.common_header
 
 
 def login():
-    URL = "https://booking.bbdc.sg/bbdc-back-service/api/auth/login"
+    URL = utils.login_url
     headers = {
                 "accept": "application/json",
                 "Content-Type": "application/json"
               }
-    params = {
-        "userId": "120W27021989",
-        "userPass": "272890"
-         }
+    params = utils.login_params
+
     resp = requests.post(URL, headers=headers, data=json.dumps(params))
     if resp.status_code == 200:
         bearer_token = resp.json()["data"]['tokenContent']
@@ -72,7 +25,7 @@ def login():
 
 
 def get_jsessionid(token):
-    url = "https://booking.bbdc.sg/bbdc-back-service/api/account/listAccountCourseType"
+    url = utils.jsession_url
     payload = r"{}"
     bearer_token = token[7:]
     unique_headers = {
@@ -92,7 +45,7 @@ def get_jsessionid(token):
 
 
 def get_slotlist(bearer_token, auth, yy, mm):
-    url = "https://booking.bbdc.sg/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"
+    url = utils.slotlist_url
     payload = {
                 "courseType": "3A",
                 "insInstructorId": "",
@@ -133,7 +86,9 @@ def get_mychoice(new_data, year, month):
         # Append the temporary DataFrame to the main DataFrame
         df = pd.concat([df, temp_df], ignore_index=True)
     wkdays7 = df[df['slotRefName'] == 'SESSION 7']
-    wkends = df[(df['lista'].isin(get_weekends(year, month))) & (df['slotRefName'] != 'SESSION 1')]
+    weekends = utils.get_weekends(year, month)
+    mask = df['lista'].isin(weekends) & df['slotRefName'] != 'SESSION 1'
+    wkends = df[mask]
     # print(wkdays7)
     my_choice = pd.concat([wkdays7, wkends], ignore_index=True)
     # print(my_choice)
@@ -157,7 +112,7 @@ def create_booking_payload(slot_id, enc_slot_id, enc_progress):
 
 
 def submit_booking(bearer_token, auth, payload):
-    url = "https://booking.bbdc.sg/bbdc-back-service/api/booking/c3practical/callBookC3PracticalSlot"
+    url = utils.submit_url
     auth_token = auth[7:]
     unique_headers = {
       'Authorization': f'Bearer {str(bearer_token)}',
@@ -182,7 +137,7 @@ def extract(minutes=19):
     # print(auth_token)
     month = 3
     year = 2023
-    weekends = get_weekends(year, month)
+    weekends = utils.get_weekends(year, month)
     # count = 0
     # while True:
     t_end = time.time() + 60 * minutes
@@ -230,7 +185,7 @@ def extract(minutes=19):
                         return message
                     time.sleep(1)
                     break
-            time.sleep(1.2)
+            time.sleep(0.8)
         except Exception as err:
             print(err)
             return f"{err}"

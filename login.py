@@ -134,8 +134,8 @@ def extract(minutes=19):
     # print(token)
     bearer_token, auth_token = get_jsessionid(token)
     # print(auth_token)
-    month = 3
-    year = 2023
+    month = utils.month
+    year = utils.year
     weekends = utils.get_weekends(year, month)
     # count = 0
     # while True:
@@ -184,7 +184,7 @@ def extract(minutes=19):
                         return message
                     time.sleep(1)
                     break
-            time.sleep(0.8)
+            time.sleep(utils.delay)
         except Exception as err:
             print(err)
             return f"{err}"

@@ -122,12 +122,11 @@ def submit_booking(bearer_token, auth, payload):
     headers = {**unique_headers, **common_header}
     response = requests.request("POST", url, headers=headers,
                                 data=json.dumps(payload))
-    if response.status_code == 200 and response.json()['success']:
-        data = response.json()['data']
 
-        return "success", data
+    if response.status_code == 200 and response.json()['success']:
+        return "success", response.json()['data']
     else:
-        return "failed"
+        return "failed", None
 
 
 def extract(minutes=19):

@@ -60,8 +60,8 @@ def login():
                 "Content-Type": "application/json"
               }
     params = {
-        "userId": "",
-        "userPass": ""
+        "userId": "120W27021989",
+        "userPass": "272890"
          }
     resp = requests.post(URL, headers=headers, data=json.dumps(params))
     if resp.status_code == 200:
@@ -114,9 +114,9 @@ def get_slotlist(bearer_token, auth, yy, mm):
         new_data = response.json()['data']
         return new_data
     else:
-        print("Error at get_slotlist", response.text)
+        print(f"Error at get_slotlist {response.text}")
         print(response.text)
-        return None
+        return f"Error at get_slotlist {response.text}"
 
 
 def get_mychoice(new_data, year, month):
@@ -218,11 +218,12 @@ def extract(minutes=19):
                         index += 1
                         balance -= 77.76
                         # send message
+                        data_list = data['bookedPracticalSlotList'][0]
                         success = status
-                        session = str(data['slotRefName'])
-                        date_ = str(data['slotRefDate'])
-                        start_time = str(data['startTime'])
-                        end_time = str(data['endTime'])
+                        session = str(data_list['slotRefName'])
+                        date_ = str(data_list['slotRefDate'])
+                        start_time = str(data_list['startTime'])
+                        end_time = str(data_list['endTime'])
                         message = f"{success}|{session}|{date_}|{start_time}|{end_time}|{balance}"
                         print(message)
                         # print(data)

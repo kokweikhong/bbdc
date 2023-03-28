@@ -2,7 +2,7 @@
 import logging
 # from time import sleep
 import login
-
+import utils
 from telegram import __version__ as TG_VER
 
 try:
@@ -33,11 +33,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     # reply_markup=ForceReply(selective=True)
     reply_keyboard = [["Book", "Check"]]
-    await update.message.reply_html(
-                                    rf"Hi {user.mention_html()}! Please select book or check",
-                                    reply_markup=ReplyKeyboardMarkup(
-                                    reply_keyboard, one_time_keyboard=True,
-                                    input_field_placeholder="Book or Check?"),
+    greetings = rf"Hi {user.mention_html()}! Please select book or check"
+    await update.message.reply_html(greetings,
+                                    reply_markup=ReplyKeyboardMarkup(reply_keyboard,
+                                                                     one_time_keyboard=True,
+                                                                     input_field_placeholder="Book or Check?"),
                                     )
 
 
@@ -50,7 +50,7 @@ async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     # await update.message.reply_text(update.message.text)
     in_msg = update.message.text.lower()
-    offset = login.get_now_with_offset()
+    offset = utils.get_now_with_offset()
     if in_msg == "book":
         reply = f"Sure Sir/Ma'am, right away. {in_msg}ing now..Please come back again at {offset} to check"
         await update.message.reply_text(reply)
@@ -67,7 +67,7 @@ async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    mytoken = "6132873137:AAEagPXJLBDb8j2GpkUGQ1zqQmmgIOx7CB4"
+    mytoken = utils.telegram_token
     application = Application.builder().token(mytoken).build()
 
     # on different commands - answer in Telegram

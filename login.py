@@ -219,7 +219,7 @@ def extract(minutes=19):
                         balance -= 77.76
                         # send message
                         data_list = data['bookedPracticalSlotList'][0]
-                        success = status
+                        success = str(data_list['message'])
                         session = str(data_list['slotRefName'])
                         date_ = str(data_list['slotRefDate'])
                         start_time = str(data_list['startTime'])

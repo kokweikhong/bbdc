@@ -21,22 +21,20 @@ def login() -> str:
 
 
 def get_jsessionid(token: str):
-    payload = r"{}"
+    payload = {}
     bearer_token = token[7:]
-    unique_headers = {
+    headers = {
       'Authorization': f'Bearer {bearer_token}',
       'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
-      'JSESSIONID': '',
+      'JSESSIONID': '', **COMMON_HEADER
     }
-    headers = {**unique_headers, **COMMON_HEADER}
     response = requests.request("POST", JSESSION_URL, headers=headers,
-                                data=payload)
-    if response.status_code == 200 and response.json()['success']:
+                                json=payload)
+    if response.status_code == 200 and response.json().get('success', False):
         # return response.text
         auth_token = response.json()['data']['activeCourseList'][0]['authToken']
         return bearer_token, auth_token
-    else:
-        raise Exception(f"JSession failed: {response.text}")
+    raise Exception(f"JSession failed: {response.text}")
 
 
 def get_slotlist(bearer_token, auth, yy, mm):
@@ -49,19 +47,17 @@ def get_slotlist(bearer_token, auth, yy, mm):
                 "subStageSubNo": None
              }
     auth_token = auth[7:]
-    unique_headers = {
+    headers = {
       'Authorization': f'Bearer {bearer_token}',
       'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
-      'JSESSIONID': f'Bearer {auth_token}',
+      'JSESSIONID': f'Bearer {auth_token}', **COMMON_HEADER
     }
-    headers = {**unique_headers, **COMMON_HEADER}
     response = requests.request("POST", SLOTLIST_URL, headers=headers,
-                                data=json.dumps(payload))
-    if response.status_code == 200 and response.json()['success']:
+                                json=payload)
+    if response.status_code == 200 and response.json().get('success', False):
         new_data = response.json()['data']
         return new_data
-    else:
-        raise Exception(f"Slotlist failed: {response.text}")
+    raise Exception(f"Slotlist failed: {response.text}")
 
 
 def get_mychoice(new_data):
@@ -102,20 +98,18 @@ def create_booking_payload(slot_id, enc_slot_id, enc_progress):
 
 def submit_booking(bearer_token, auth, payload):
     auth_token = auth[7:]
-    unique_headers = {
+    headers = {
       'Authorization': f'Bearer {bearer_token}',
       'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
-      'JSESSIONID': f'Bearer {auth_token}',
+      'JSESSIONID': f'Bearer {auth_token}', **COMMON_HEADER
     }
-    headers = {**unique_headers, **COMMON_HEADER}
     response = requests.request("POST", SUBMIT_URL,
                                 headers=headers,
-                                data=json.dumps(payload))
+                                json=payload)
 
     if response.status_code == 200 and response.json()['success']:
         return "success", response.json()['data']
-    else:
-        return "failed", None
+    return "failed", None
 
 
 def extract(minutes=19):
@@ -130,7 +124,7 @@ def extract(minutes=19):
         # print(count)
         # count += 1
         try:
-            new_data = get_slotlist(bearer_token, auth_token, 
+            new_data = get_slotlist(bearer_token, auth_token,
                                     YEAR, str(MONTH).zfill(2))
             balance_ = new_data['accountBal']
             # print(new_data)

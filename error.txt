@@ -1,4 +1,3 @@
-Authentication failed: {"timestamp":"2023-03-24T08:36:26.380+00:00","status":500,"error":"Internal Server Error","path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"}
-{"timestamp":"2023-03-24T08:36:26.380+00:00","status":500,"error":"Internal Server Error","path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"}
-'NoneType' object is not subscriptable
-'NoneType' object is not subscriptable
+Error at get_slotlist {"timestamp":"2023-03-29T05:11:38.664+00:00","status":500,"error":"Internal Server Error","path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"}
+{"timestamp":"2023-03-29T05:11:38.664+00:00","status":500,"error":"Internal Server Error","path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"}
+string indices must be integers

@@ -16,20 +16,11 @@ def get_weekends(year=2023, month=3):
     # Get the calendar for the given month
     cal = calendar.monthcalendar(year, month)
     # Iterate over the weeks in the calendar
-    weekends = []
-    for week in cal:
-        # Check if Saturday or Sunday is in the week
-        if week[5] != 0:
-            # Saturday is in the week
-            sat = f'{year}-{month}-{week[5]}'
-            sat_object = datetime.strptime(sat, '%Y-%m-%d')
-            weekends.append(sat_object.strftime("%Y-%m-%d %H:%M:%S"))
-        if week[6] != 0:
-            # Sunday is in the week
-            sun = f'{year}-{month}-{week[6]}'
-            sun_object = datetime.strptime(sun, '%Y-%m-%d')
-            weekends.append(sun_object.strftime("%Y-%m-%d %H:%M:%S"))
-    return weekends
+    weekends = [f'{year}-{month}-{day}' for week in cal for day in week[5:7] if day != 0]
+    weekend_objects = [datetime.strptime(weekend,
+                                         '%Y-%m-%d') for weekend in weekends]
+    weekend_strings = [weekend_object.strftime('%Y-%m-%d %H:%M:%S') for weekend_object in weekend_objects]
+    return weekend_strings
 
 
 with open("config.json") as conf_file:

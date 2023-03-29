@@ -1,6 +1,6 @@
 import logging
 # from time import sleep
-import login
+from login import check_and_book_slot
 from utils import TELEGRAM_TOKEN, get_now_with_offset
 from telegram import __version__ as TG_VER
 
@@ -49,12 +49,12 @@ async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     # await update.message.reply_text(update.message.text)
     in_msg = update.message.text.lower()
-    offset = get_now_with_offset
+    offset = get_now_with_offset()
     if in_msg == "book":
         reply = f"Sure Sir/Ma'am, right away. {in_msg}ing now..Please come back again at {offset} to check"
         await update.message.reply_text(reply)
         try:
-            result = login.extract()
+            result = check_and_book_slot()
         except Exception as e:
             result = e
     else:

@@ -1,8 +1,7 @@
-
 import logging
 # from time import sleep
 import login
-import utils
+from utils import TELEGRAM_TOKEN, get_now_with_offset
 from telegram import __version__ as TG_VER
 
 try:
@@ -50,7 +49,7 @@ async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     # await update.message.reply_text(update.message.text)
     in_msg = update.message.text.lower()
-    offset = utils.get_now_with_offset()
+    offset = get_now_with_offset
     if in_msg == "book":
         reply = f"Sure Sir/Ma'am, right away. {in_msg}ing now..Please come back again at {offset} to check"
         await update.message.reply_text(reply)
@@ -67,8 +66,7 @@ async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    mytoken = utils.telegram_token
-    application = Application.builder().token(mytoken).build()
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))

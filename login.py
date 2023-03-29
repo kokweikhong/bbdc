@@ -55,8 +55,7 @@ def get_slotlist(bearer_token, auth, yy, mm):
     response = requests.request("POST", SLOTLIST_URL, headers=headers,
                                 json=payload)
     if response.status_code == 200 and response.json().get('success', False):
-        new_data = response.json()['data']
-        return new_data
+        return response.json()['data']
     raise Exception(f"Slotlist failed: {response.text}")
 
 

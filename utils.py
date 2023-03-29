@@ -35,17 +35,21 @@ def get_weekends(year=2023, month=3):
 with open("config.json") as conf_file:
     config = json.load(conf_file)
 
-telegram_token = config['telegram_token']
-login_params = config['login_params']
-common_header = config['common_header']
-login_url = config['login_url']
-jsession_url = config['jsession_url']
-slotlist_url = config['slotlist_url']
-submit_url = config['submit_url']
+TELEGRAM_TOKEN = config['telegram_token']
+LOGIN_PARAMS = config['login_params']
+COMMON_HEADER = config['common_header']
+LOGIN_URL = config['login_url']
+JSESSION_URL = config['jsession_url']
+SLOTLIST_URL = config['slotlist_url']
+SUBMIT_URL = config['submit_url']
+DELAY = float(config['delay'])
+MONTH = datetime.now().month
+YEAR = datetime.now().year
 
 
 if __name__ == '__main__':
-    printy = login_params
+
+    printy = MONTH
     print(printy)
     print(type(printy))
 

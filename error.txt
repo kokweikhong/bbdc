@@ -1,3 +1,21 @@
 Error at get_slotlist {"timestamp":"2023-03-29T05:11:38.664+00:00","status":500,"error":"Internal Server Error","path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"}
-{"timestamp":"2023-03-29T05:11:38.664+00:00","status":500,"error":"Internal Server Error","path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"}
+
+{
+ "timestamp":"2023-03-29T05:11:38.664+00:00",
+ "status":500,
+ "error":"Internal Server Error",
+ "path":"/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased"
+ }
+
+string indices must be integers
+
+Error at get_slotlist {"success":false,"message":"The previous session has expired.","code":402,"data":{}}
+
+{
+ "success":false,
+ "message":"The previous session has expired.",
+ "code":402,
+ "data":{}
+ }
+
 string indices must be integers

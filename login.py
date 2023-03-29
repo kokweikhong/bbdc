@@ -3,49 +3,43 @@ import utils
 import requests
 import pandas as pd
 import time
+from utils import (
+    LOGIN_URL, LOGIN_PARAMS, COMMON_HEADER, JSESSION_URL,
+    SLOTLIST_URL, SUBMIT_URL, MONTH, YEAR, get_weekends
+)
 
 
-common_header = utils.common_header
-
-
-def login():
-    URL = utils.login_url
+def login() -> str:
     headers = {
                 "accept": "application/json",
                 "Content-Type": "application/json"
               }
-    params = utils.login_params
-
-    resp = requests.post(URL, headers=headers, data=json.dumps(params))
-    if resp.status_code == 200:
-        bearer_token = resp.json()["data"]['tokenContent']
-        return bearer_token
-    else:
-        print("Authentication failed:", resp.text)
+    resp = requests.post(LOGIN_URL, headers=headers,
+                         data=json.dumps(LOGIN_PARAMS))
+    resp.raise_for_status()
+    return resp.json()["data"]['tokenContent']
 
 
-def get_jsessionid(token):
-    url = utils.jsession_url
+def get_jsessionid(token: str):
     payload = r"{}"
     bearer_token = token[7:]
     unique_headers = {
-      'Authorization': f'Bearer {str(bearer_token)}',
-      'Cookie': f'bbdc-token=Bearer%20{str(bearer_token)}',
+      'Authorization': f'Bearer {bearer_token}',
+      'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
       'JSESSIONID': '',
     }
-    headers = {**unique_headers, **common_header}
-    response = requests.request("POST", url, headers=headers, data=payload)
+    headers = {**unique_headers, **COMMON_HEADER}
+    response = requests.request("POST", JSESSION_URL, headers=headers,
+                                data=payload)
     if response.status_code == 200 and response.json()['success']:
         # return response.text
         auth_token = response.json()['data']['activeCourseList'][0]['authToken']
         return bearer_token, auth_token
     else:
-        print("Authentication failed:", response.text)
-        print(response.text)
+        raise Exception(f"JSession failed: {response.text}")
 
 
 def get_slotlist(bearer_token, auth, yy, mm):
-    url = utils.slotlist_url
     payload = {
                 "courseType": "3A",
                 "insInstructorId": "",
@@ -56,23 +50,21 @@ def get_slotlist(bearer_token, auth, yy, mm):
              }
     auth_token = auth[7:]
     unique_headers = {
-      'Authorization': f'Bearer {str(bearer_token)}',
-      'Cookie': f'bbdc-token=Bearer%20{str(bearer_token)}',
-      'JSESSIONID': f'Bearer {str(auth_token)}',
+      'Authorization': f'Bearer {bearer_token}',
+      'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
+      'JSESSIONID': f'Bearer {auth_token}',
     }
-    headers = {**unique_headers, **common_header}
-    response = requests.request("POST", url, headers=headers,
+    headers = {**unique_headers, **COMMON_HEADER}
+    response = requests.request("POST", SLOTLIST_URL, headers=headers,
                                 data=json.dumps(payload))
     if response.status_code == 200 and response.json()['success']:
         new_data = response.json()['data']
         return new_data
     else:
-        print(f"Error at get_slotlist {response.text}")
-        print(response.text)
-        return f"Error at get_slotlist {response.text}"
+        raise Exception(f"Slotlist failed: {response.text}")
 
 
-def get_mychoice(new_data, year, month):
+def get_mychoice(new_data):
     balance = new_data['accountBal']
     slot_list = new_data['releasedSlotListGroupByDay']
     # Create an empty DataFrame
@@ -86,14 +78,11 @@ def get_mychoice(new_data, year, month):
         # Append the temporary DataFrame to the main DataFrame
         df = pd.concat([df, temp_df], ignore_index=True)
     wkdays7 = df[df['slotRefName'] == 'SESSION 7']
-    weekends = utils.get_weekends(year, month)
+    weekends = get_weekends(YEAR, MONTH)
     mask = df['lista'].isin(weekends) & df['slotRefName'] != 'SESSION 1'
     wkends = df[mask]
-    # print(wkdays7)
     my_choice = pd.concat([wkdays7, wkends], ignore_index=True)
-    # print(my_choice)
     chosen = my_choice[["slotId", "slotIdEnc", "bookingProgressEnc"]]
-    # print(chosen)
     return chosen, balance, df
 
 
@@ -112,15 +101,15 @@ def create_booking_payload(slot_id, enc_slot_id, enc_progress):
 
 
 def submit_booking(bearer_token, auth, payload):
-    url = utils.submit_url
     auth_token = auth[7:]
     unique_headers = {
-      'Authorization': f'Bearer {str(bearer_token)}',
-      'Cookie': f'bbdc-token=Bearer%20{str(bearer_token)}',
-      'JSESSIONID': f'Bearer {str(auth_token)}',
+      'Authorization': f'Bearer {bearer_token}',
+      'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
+      'JSESSIONID': f'Bearer {auth_token}',
     }
-    headers = {**unique_headers, **common_header}
-    response = requests.request("POST", url, headers=headers,
+    headers = {**unique_headers, **COMMON_HEADER}
+    response = requests.request("POST", SUBMIT_URL,
+                                headers=headers,
                                 data=json.dumps(payload))
 
     if response.status_code == 200 and response.json()['success']:
@@ -131,12 +120,8 @@ def submit_booking(bearer_token, auth, payload):
 
 def extract(minutes=19):
     token = login()
-    # print(token)
     bearer_token, auth_token = get_jsessionid(token)
-    # print(auth_token)
-    month = utils.month
-    year = utils.year
-    weekends = utils.get_weekends(year, month)
+    weekends = get_weekends(YEAR, MONTH)
     # count = 0
     # while True:
     t_end = time.time() + 60 * minutes
@@ -145,7 +130,8 @@ def extract(minutes=19):
         # print(count)
         # count += 1
         try:
-            new_data = get_slotlist(bearer_token, auth_token, year, str(month).zfill(2))
+            new_data = get_slotlist(bearer_token, auth_token, 
+                                    YEAR, str(MONTH).zfill(2))
             balance_ = new_data['accountBal']
             # print(new_data)
             if new_data['releasedSlotListGroupByDay'] is not None:
@@ -153,7 +139,7 @@ def extract(minutes=19):
                 check_val = check['slotRefName']
                 check_date = check['slotRefDate']
                 if check_val == "SESSION 7" or check_date in weekends:
-                    chosen, balance, df = get_mychoice(new_data, year, month)
+                    chosen, balance, df = get_mychoice(new_data)
                     index = 0
                     while balance > 78 and not index >= len(chosen):
                         # for row in chosen.itertuples():

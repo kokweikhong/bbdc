@@ -50,37 +50,13 @@ def main():
     balance_ = new_data['accountBal']
     # Check if any slots are available
     if new_data['releasedSlotListGroupByDay'] is not None:
-        while True:
-            temp = next(iter(new_data['releasedSlotListGroupByDay'].values()))[0]
-            # Get the first available slot
-            # while True:
-        # item will be "end" if iteration is complete
+        key_lists = list(new_data['releasedSlotListGroupByDay'].keys())
+        data_weekends = list(set(key_lists).intersection(set(weekends)))
+        print(data_weekends)
 
-
-            print(temp)
-            sleep(1)
-        #     slot_name = first_slot['slotRefName']
-        #     slot_date = first_slot['slotRefDate']
-        # # Check if the slot is valid (on a weekend or session 7)
-        #     if slot_name == "SESSION 7" or slot_date in weekends:
-        #         print(first_slot)
-
-    #         # Try to book the slot
-    #         chosen_slots, balance, df = get_mychoice(new_data)
-    #         for index, row in chosen_slots.iterrows():
-    #             if balance < 78 or index >= len(chosen_slots):
-    #                 break
-    #             # # for row in chosen.itertuples():
-    #             # slot_id = row['slotId'].item()
-    #             # enc_slot_id = row['slotIdEnc']
-    #             # enc_progress = row['bookingProgressEnc']
-    #             # print(slot_id, enc_progress, enc_slot_id)
-    #             # balance -= 77
-    #         # print(new_data)
 
 
 if __name__ == '__main__':
     # print(get_weekends())
     main()
-
 

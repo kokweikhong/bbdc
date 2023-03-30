@@ -1,9 +1,9 @@
 import json
 import requests
-import pandas as pd
 from time import time, sleep
 from utils import (LOGIN_URL, LOGIN_PARAMS, COMMON_HEADER, JSESSION_URL,
-                   SLOTLIST_URL, SUBMIT_URL, MONTH, YEAR, get_weekends, DELAY)
+                   SLOTLIST_URL, SUBMIT_URL, MONTH, YEAR, get_weekends, DELAY,
+                   WEEKEND_SESSIONS, WEEKDAY_SESSIONS)
 
 
 def login() -> str:
@@ -54,26 +54,30 @@ def get_slotlist(bearer_token: str, auth: str, yy: int, mm: int):
     return response.json()["data"]
 
 
-def get_mychoice(new_data: dict):
-    balance = new_data['accountBal']
-    slot_list = new_data['releasedSlotListGroupByDay']
-    # Create an empty DataFrame
-    df = pd.DataFrame()
-    # Iterate through the dictionary keys
-    for key in slot_list.keys():
-        # Convert the list of dictionaries to a DataFrame
-        temp_df = pd.DataFrame(slot_list[key])
-        # Add a new column to identify which list the data came from
-        temp_df['lista'] = key
-        # Append the temporary DataFrame to the main DataFrame
-        df = pd.concat([df, temp_df], ignore_index=True)
-    wkdays7 = df[df['slotRefName'] == 'SESSION 7']
-    weekends = get_weekends(YEAR, MONTH)
-    mask = df['lista'].isin(weekends) & df['slotRefName'] != 'SESSION 1'
-    wkends = df[mask]
-    my_choice = pd.concat([wkdays7, wkends], ignore_index=True)
-    chosen = my_choice[["slotId", "slotIdEnc", "bookingProgressEnc"]]
-    return chosen, balance, df
+def get_available_slots(new_data: dict, weekends: list):
+    result_dict = new_data['releasedSlotListGroupByDay']
+    key_lists = list(result_dict.keys())
+    # check weekends slots
+    weekends_keys = list(set(key_lists).intersection(set(weekends)))
+    weekends_dict = {k: result_dict[k] for k in weekends_keys
+                     if k in result_dict}
+    weekends_slots = [tuple([slot['slotId'], slot['slotIdEnc'],
+                            slot['bookingProgressEnc']])
+                      for slots in weekends_dict.values()
+                      for slot in slots
+                      if slot['slotRefName'] in WEEKEND_SESSIONS]
+
+    # check weekdays slots
+    weekdays_keys = list(set(key_lists) - set(weekends))
+    weekdays_dict = {k: result_dict[k] for k in weekdays_keys
+                     if k in result_dict}
+    weekdays_slots = [tuple([slot['slotId'], slot['slotIdEnc'],
+                            slot['bookingProgressEnc']])
+                      for slots in weekdays_dict.values()
+                      for slot in slots
+                      if slot['slotRefName'] in WEEKDAY_SESSIONS]
+    available_slots = weekdays_slots + weekends_slots
+    return available_slots, new_data['accountBal']
 
 
 def create_booking_payload(slot_id: str, enc_slot_id: str, enc_progress: str):
@@ -115,26 +119,13 @@ def check_and_book_slot(minutes=19):
             balance_ = new_data['accountBal']
             # Check if any slots are available
             if new_data['releasedSlotListGroupByDay'] is not None:
-                # Get the first available slot
-                temp = iter(new_data['releasedSlotListGroupByDay'].values())
-                first_slot = next(temp)[0]
-                slot_name = first_slot['slotRefName']
-                slot_date = first_slot['slotRefDate']
-
-                # Check if the slot is valid (on a weekend or session 7)
-                if slot_name == "SESSION 7" or slot_date in weekends:
-                    # Try to book the slot
-                    chosen_slots, balance, df = get_mychoice(new_data)
-                    for index, row in chosen_slots.iterrows():
-                        if balance < 78 or index >= len(chosen_slots):
-                            break
-                        # for row in chosen.itertuples():
-                        slot_id = row['slotId'].item()
-                        enc_slot_id = row['slotIdEnc']
-                        enc_progress = row['bookingProgressEnc']
-                        payload = create_booking_payload(slot_id, enc_slot_id,
-                                                         enc_progress)
-                        # print(payload)
+                available_slots, balance = get_available_slots(new_data,
+                                                               weekends)
+                if available_slots and balance > 78:
+                    message = ""
+                    for slot in available_slots:
+                        payload = create_booking_payload(slot[0], slot[1],
+                                                         slot[2])
                         status, data = submit_booking(bearer_token, auth_token,
                                                       payload)
                         if status == "failed":
@@ -145,16 +136,14 @@ def check_and_book_slot(minutes=19):
                         success = str(data_list['message'])
                         session = str(data_list['slotRefName'])
                         date_ = str(data_list['slotRefDate'])
-                        start_time = str(data_list['startTime'])
-                        end_time = str(data_list['endTime'])
-                        message = f"{success}|{session}|{date_}|{start_time}|"\
-                                  f"{end_time}|{balance}"
-                        return message
-                    sleep(1)
-                    break
+                        message += f"{success}|{session}|{date_}|"
+                        if balance < 78:
+                            return f"{message}.Balance is not enough! {balance}. Please top up."
+                    return message
+                sleep(1)
+                break
             sleep(DELAY)
         except Exception as err:
-            print(err)
             return f"{err}"
     return f"Unable find appropriate bookings. Balance:{balance_}"
 

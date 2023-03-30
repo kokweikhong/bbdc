@@ -140,8 +140,6 @@ def check_and_book_slot(minutes=19):
                         if balance < 78:
                             return f"{message}.Balance is not enough! {balance}. Please top up."
                     return message
-                sleep(1)
-                break
             sleep(DELAY)
         except Exception as err:
             return f"{err}"

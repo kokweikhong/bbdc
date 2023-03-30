@@ -5,6 +5,10 @@
         "userId": "120W27021989",
         "userPass": "272890"
          },
+    "sessions": {
+        "weekdays": ["SESSION 7"],
+        "weekends": ["SESSION 2", "SESSION 3", "SESSION 4"]
+    },
     "common_header": {
         "Accept": "application/json, text/plain, */*",
         "Accept-Language": "en-US,en;q=0.9",

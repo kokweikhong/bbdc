@@ -1,13 +1,14 @@
 import json
 import requests
 from time import time, sleep
+from typing import Dict, Tuple, List, Union
 from utils import (LOGIN_URL, LOGIN_PARAMS, COMMON_HEADER, JSESSION_URL,
                    SLOTLIST_URL, SUBMIT_URL, MONTH, YEAR, get_weekends, DELAY,
                    WEEKEND_SESSIONS, WEEKDAY_SESSIONS)
 
 
 def login() -> str:
-    headers = {
+    headers: Dict[str, str] = {
                 "accept": "application/json",
                 "Content-Type": "application/json"
               }
@@ -17,7 +18,7 @@ def login() -> str:
     return resp.json()["data"]['tokenContent']
 
 
-def get_jsessionid(token: str):
+def get_jsessionid(token: str) -> Tuple[str, str]:
     payload = {}
     bearer_token = token[7:]
     headers = {
@@ -26,14 +27,14 @@ def get_jsessionid(token: str):
       'JSESSIONID': '',
       **COMMON_HEADER
     }
-    response = requests.post(JSESSION_URL, headers=headers,
-                             json=payload)
-    response.raise_for_status()
-    auth_token = response.json()['data']['activeCourseList'][0]['authToken']
-    return bearer_token, auth_token
+    with requests.Session() as session:
+        response = session.post(JSESSION_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        auth_token = response.json()["data"]["activeCourseList"][0]["authToken"]
+        return bearer_token, auth_token
 
 
-def get_slotlist(bearer_token: str, auth: str, yy: int, mm: int):
+def get_slotlist(bearer_token: str, auth: str, yy: int, mm: int) -> List[dict]:
     payload = {
                 "courseType": "3A",
                 "insInstructorId": "",
@@ -48,13 +49,15 @@ def get_slotlist(bearer_token: str, auth: str, yy: int, mm: int):
       'JSESSIONID': f'Bearer {auth[7:]}',
       **COMMON_HEADER
     }
-    response = requests.post(SLOTLIST_URL, headers=headers,
-                             json=payload)
-    response.raise_for_status()
-    return response.json()["data"]
+    with requests.Session() as session:
+        response = session.post(SLOTLIST_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        return response.json()["data"]
 
 
-def get_available_slots(new_data: dict, weekends: list):
+def get_available_slots(new_data: Dict[str, List[Dict[str, str]]],
+                        weekends: List[str]) -> Tuple[List[Tuple[str, str,
+                                                                 str]], str]:
     result_dict = new_data['releasedSlotListGroupByDay']
     key_lists = list(result_dict.keys())
     # check weekends slots
@@ -92,17 +95,20 @@ def create_booking_payload(slot_id: str, enc_slot_id: str, enc_progress: str):
     }
 
 
-def submit_booking(bearer_token: str, auth: str, payload: dict):
+def submit_booking(bearer_token: str, auth: str,
+                   payload: Dict[str, Union[str, int]]) -> Tuple[str, Union[None, Dict]]:
     headers = {
       'Authorization': f'Bearer {bearer_token}',
       'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
       'JSESSIONID': f'Bearer {auth[7:]}',
       **COMMON_HEADER
     }
-    response = requests.post(SUBMIT_URL, headers=headers, json=payload)
-    if response.json().get("success"):
-        return "success", response.json()["data"]
-    return "failed", None
+    with requests.Session() as session:
+        response = session.post(SUBMIT_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        if response.json().get("success"):
+            return "success", response.json()["data"]
+        return "failed", None
 
 
 def check_and_book_slot(minutes=19):

@@ -96,7 +96,9 @@ def create_booking_payload(slot_id: str, enc_slot_id: str, enc_progress: str):
 
 
 def submit_booking(bearer_token: str, auth: str,
-                   payload: Dict[str, Union[str, int]]) -> Tuple[str, Union[None, Dict]]:
+                   payload: Dict[str, Union[str, int]]) -> Tuple[str,
+                                                                 Union[None,
+                                                                       Dict]]:
     headers = {
       'Authorization': f'Bearer {bearer_token}',
       'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
@@ -112,44 +114,61 @@ def submit_booking(bearer_token: str, auth: str,
 
 
 def check_and_book_slot(minutes=19):
-    token = login()
-    bearer_token, auth_token = get_jsessionid(token)
-    weekends = get_weekends(YEAR, MONTH)
-    t_end = time() + 60 * minutes
-    balance_ = ""
-    while time() < t_end:
-        try:
+    try:
+        # Log in and get session tokens
+        token = login()
+        bearer_token, auth_token = get_jsessionid(token)
+
+        # Get weekends and end time
+        weekends = get_weekends(YEAR, MONTH)
+        end_time = time() + 60 * minutes
+
+        # Poll for available slots
+        while time() < end_time:
             # Get the latest slot list data
-            new_data = get_slotlist(bearer_token, auth_token,
-                                    YEAR, str(MONTH).zfill(2))
-            balance_ = new_data['accountBal']
+            slot_data = get_slotlist(bearer_token, auth_token, YEAR,
+                                     str(MONTH).zfill(2))
+            balance = slot_data['accountBal']
+
             # Check if any slots are available
-            if new_data['releasedSlotListGroupByDay'] is not None:
-                available_slots, balance = get_available_slots(new_data,
-                                                               weekends)
-                if available_slots and balance > 78:
-                    message = ""
-                    for slot in available_slots:
-                        payload = create_booking_payload(slot[0], slot[1],
-                                                         slot[2])
-                        status, data = submit_booking(bearer_token, auth_token,
-                                                      payload)
-                        if status == "failed":
-                            raise Exception("Failed to book.")
-                        balance -= 77.76
-                        # send message
-                        data_list = data['bookedPracticalSlotList'][0]
-                        success = str(data_list['message'])
-                        session = str(data_list['slotRefName'])
-                        date_ = str(data_list['slotRefDate'])
-                        message += f"{success}|{session}|{date_}|"
-                        if balance < 78:
-                            return f"{message}.Balance is not enough! {balance}. Please top up."
-                    return message
-            sleep(DELAY)
-        except Exception as err:
-            return f"{err}"
-    return f"Unable find appropriate bookings. Balance:{balance_}"
+            if not slot_data['releasedSlotListGroupByDay']:
+                sleep(DELAY)
+                continue
+
+            # Check for available slots and balance
+            available_slots, balance = get_available_slots(slot_data, weekends)
+            if not available_slots:
+                sleep(DELAY)
+                continue
+
+            if balance < 78:
+                return f"Balance is not enough! {balance}. Please top up."
+
+            # Book available slots
+            messages = []
+            for slot in available_slots:
+                payload = create_booking_payload(slot[0], slot[1], slot[2])
+                status, data = submit_booking(bearer_token, auth_token,
+                                              payload)
+                if status == "failed":
+                    raise Exception("Failed to book.")
+
+                balance -= 77.76
+                data_list = data['bookedPracticalSlotList'][0]
+                success = str(data_list['message'])
+                session = str(data_list['slotRefName'])
+                date_ = str(data_list['slotRefDate'])
+                messages.append(f"{success}|{session}|{date_}|")
+
+            return " ".join(messages)
+
+        return f"Unable find appropriate bookings. Balance:{balance}"
+
+    except requests.exceptions.RequestException as err:
+        return f"Network error: {err}"
+
+    except Exception as err:
+        return f"Error: {err}"
 
 
 if __name__ == '__main__':

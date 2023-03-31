@@ -16,10 +16,12 @@ def get_weekends(year=2023, month=3):
     # Get the calendar for the given month
     cal = calendar.monthcalendar(year, month)
     # Iterate over the weeks in the calendar
-    weekends = [f'{year}-{month}-{day}' for week in cal for day in week[5:7] if day != 0]
-    weekend_objects = [datetime.strptime(weekend,
-                                         '%Y-%m-%d') for weekend in weekends]
-    weekend_strings = [weekend_object.strftime('%Y-%m-%d %H:%M:%S') for weekend_object in weekend_objects]
+    weekends = [f'{year}-{month}-{day}' for week in cal
+                for day in week[5:7] if day != 0]
+    wkndobjs = [datetime.strptime(weekend, '%Y-%m-%d')
+                for weekend in weekends]
+    weekend_strings = [wkndobj.strftime('%Y-%m-%d %H:%M:%S')
+                       for wkndobj in wkndobjs]
     return weekend_strings
 
 
@@ -33,14 +35,17 @@ LOGIN_URL = config['login_url']
 JSESSION_URL = config['jsession_url']
 SLOTLIST_URL = config['slotlist_url']
 SUBMIT_URL = config['submit_url']
+CHECK_URL = config['check_booking_url']
 DELAY = float(config['delay'])
 MONTH = datetime.now().month
 YEAR = datetime.now().year
+WEEKEND_SESSIONS = config['sessions']['weekends']
+WEEKDAY_SESSIONS = config['sessions']['weekdays']
 
 
 if __name__ == '__main__':
 
-    printy = MONTH
+    printy = WEEKEND_SESSIONS
     print(printy)
     print(type(printy))
 

@@ -6,7 +6,7 @@
         "userPass": "272890"
          },
     "sessions": {
-        "weekdays": ["SESSION 7"],
+        "weekdays": [],
         "weekends": ["SESSION 2", "SESSION 3", "SESSION 4"]
     },
     "common_header": {
@@ -28,5 +28,6 @@
     "login_url": "https://booking.bbdc.sg/bbdc-back-service/api/auth/login",
     "jsession_url": "https://booking.bbdc.sg/bbdc-back-service/api/account/listAccountCourseType",
     "slotlist_url": "https://booking.bbdc.sg/bbdc-back-service/api/booking/c3practical/listC3PracticalSlotReleased",
-    "submit_url": "https://booking.bbdc.sg/bbdc-back-service/api/booking/c3practical/callBookC3PracticalSlot"
+    "submit_url": "https://booking.bbdc.sg/bbdc-back-service/api/booking/c3practical/callBookC3PracticalSlot",
+    "check_booking_url": "https://booking.bbdc.sg/bbdc-back-service/api/booking/manage/listManageBooking"
 }

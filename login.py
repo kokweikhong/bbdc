@@ -4,7 +4,7 @@ from time import time, sleep
 from typing import Dict, Tuple, List, Union
 from utils import (LOGIN_URL, LOGIN_PARAMS, COMMON_HEADER, JSESSION_URL,
                    SLOTLIST_URL, SUBMIT_URL, MONTH, YEAR, get_weekends, DELAY,
-                   WEEKEND_SESSIONS, WEEKDAY_SESSIONS)
+                   WEEKEND_SESSIONS, WEEKDAY_SESSIONS, CHECK_URL)
 
 
 def login() -> str:
@@ -113,12 +113,34 @@ def submit_booking(bearer_token: str, auth: str,
         return "failed", None
 
 
+def check_bookings(bearer_token: str, auth: str,):
+    payload = {
+                  "courseType": "3A"
+                }
+    headers = {
+      'Authorization': f'Bearer {bearer_token}',
+      'Cookie': f'bbdc-token=Bearer%20{bearer_token}',
+      'JSESSIONID': f'Bearer {auth[7:]}',
+      **COMMON_HEADER
+    }
+    with requests.Session() as session:
+        response = session.post(CHECK_URL, headers=headers, json=payload)
+        response.raise_for_status()
+        # data = ["data"]
+        booking_list = response.json()['data']['theoryActiveBookingList']
+        bookings = [f"{booking['stageSubNo']}|{booking['slotRefDesc']}|"
+                    f"{booking['slotRefDate'][:10]}|Session {booking['sessionNo']}"
+                    f"|{booking['startTime']}-{booking['endTime']}" for booking
+                    in booking_list]
+        return bookings
+
+
 def check_and_book_slot(minutes=19):
     try:
         # Log in and get session tokens
         token = login()
         bearer_token, auth_token = get_jsessionid(token)
-
+        confirmed_bookings = check_bookings(bearer_token, auth_token)
         # Get weekends and end time
         weekends = get_weekends(YEAR, MONTH)
         end_time = time() + 60 * minutes

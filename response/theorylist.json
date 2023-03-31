@@ -1,0 +1,41 @@
+{
+  "success": true,
+  "message": null,
+  "code": 0,
+  "routeToURL": null,
+  "data": {
+    "theoryActiveBookingList": [
+      {
+        "dataType": "Theory",
+        "bookingId": 9251034,
+        "bookingStatus": "A",
+        "theoryType": "PPL",
+        "stageSubNo": "5.01",
+        "vehicleType": "",
+        "testType": "",
+        "slotId": null,
+        "slotRefName": null,
+        "slotRefDesc": "Practical Preparation  Lesson",
+        "slotRefDate": "2023-04-02 00:00:00.0",
+        "sessionNo": "2",
+        "startTime": "09:20",
+        "endTime": "11:00",
+        "language": "English",
+        "venueId": 7,
+        "success": false,
+        "message": null,
+        "onGoingInd": "N",
+        "bookingCharge": 22.68,
+        "trySellInd": "Y",
+        "venueName": "HBTL",
+        "venueFee": null,
+        "c3psbPickupPt": "",
+        "c3tptTPickupPt": "",
+        "c3psrFixGrpNo": "",
+        "c3psbFixInstructorId": "",
+        "fgCarmodel": ""
+      }
+    ]
+  },
+  "resultObject": null
+}

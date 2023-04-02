@@ -6,7 +6,7 @@
         "userPass": "272890"
          },
     "sessions": {
-        "weekdays": [],
+        "weekdays": ["SESSION 7"],
         "weekends": ["SESSION 2", "SESSION 3", "SESSION 4"]
     },
     "common_header": {

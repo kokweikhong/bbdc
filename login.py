@@ -140,7 +140,7 @@ def check_and_book_slot(minutes=19):
         # Log in and get session tokens
         token = login()
         bearer_token, auth_token = get_jsessionid(token)
-        confirmed_bookings = check_bookings(bearer_token, auth_token)
+
         # Get weekends and end time
         weekends = get_weekends(YEAR, MONTH)
         end_time = time() + 60 * minutes
@@ -181,8 +181,8 @@ def check_and_book_slot(minutes=19):
                 session = str(data_list['slotRefName'])
                 date_ = str(data_list['slotRefDate'])
                 messages.append(f"{success}|{session}|{date_}|")
-
-            return " ".join(messages)
+            confirmed_bookings = check_bookings(bearer_token, auth_token)
+            return " ".join(messages), confirmed_bookings
 
         return f"Unable find appropriate bookings. Balance:{balance}"
 
@@ -193,5 +193,20 @@ def check_and_book_slot(minutes=19):
         return f"Error: {err}"
 
 
+def get_confirmed_bookings() -> List:
+    try:
+        token = login()
+        bearer_token, auth_token = get_jsessionid(token)
+        confirmed_bookings = check_bookings(bearer_token, auth_token)
+        return confirmed_bookings
+
+    except requests.exceptions.RequestException as err:
+        return f"Network error: {err}"
+
+    except Exception as err:
+        return f"Error: {err}"
+
+
 if __name__ == '__main__':
-    print(check_and_book_slot())
+    # print(check_and_book_slot())
+    print(get_confirmed_bookings())

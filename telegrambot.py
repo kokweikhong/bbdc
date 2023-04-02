@@ -54,27 +54,25 @@ async def run_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply = f"Sure Sir/Ma'am, right away. {in_msg}ing now..Please come back again at {offset} to check"
         await update.message.reply_text(reply)
         try:
-            result, bookings_list = check_and_book_slot()
-
-            if bookings_list:
+            result = check_and_book_slot()
+        except Exception as e:
+            result = e
+        await update.message.reply_text(result)
+    elif in_msg == "check":
+        try:
+            check_list = get_confirmed_bookings()
+            if check_list:
                 await update.message.reply_text("Confirmed booking are as follows")
-                for booking in bookings_list:
+                for booking in check_list:
                     await update.message.reply_text(booking)
             else:
                 await update.message.reply_text("No confirmed booking found")
-            await update.message.reply_text(result)
         except Exception as e:
             result = e
-    elif in_msg == "check":
-        check_list = get_confirmed_bookings()
-        if check_list:
-            await update.message.reply_text("Confirmed booking are as follows")
-            for booking in check_list:
-                await update.message.reply_text(booking)
-        else:
-            await update.message.reply_text("No confirmed booking found")
+            await update.message.reply_text(result)
     else:
         result = f"{update.message.text}ing function is not implemented yet."
+        await update.message.reply_text(result)
 
 
 def main() -> None:

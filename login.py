@@ -135,7 +135,7 @@ def check_bookings(bearer_token: str, auth: str,):
         return bookings
 
 
-def check_and_book_slot(minutes=19):
+def check_and_book_slot(minutes=19) -> str:
     try:
         # Log in and get session tokens
         token = login()
@@ -144,7 +144,6 @@ def check_and_book_slot(minutes=19):
         # Get weekends and end time
         weekends = get_weekends(YEAR, MONTH)
         end_time = time() + 60 * minutes
-
         # Poll for available slots
         while time() < end_time:
             # Get the latest slot list data
@@ -181,8 +180,8 @@ def check_and_book_slot(minutes=19):
                 session = str(data_list['slotRefName'])
                 date_ = str(data_list['slotRefDate'])
                 messages.append(f"{success}|{session}|{date_}|")
-            confirmed_bookings = check_bookings(bearer_token, auth_token)
-            return " ".join(messages), confirmed_bookings
+
+            return " ".join(messages)
 
         return f"Unable find appropriate bookings. Balance:{balance}"
 

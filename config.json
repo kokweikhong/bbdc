@@ -1,6 +1,6 @@
 {
     "delay": "0.8",
-    "telegram_token": "6132873137:AAEagPXJLBDb8j2GpkUGQ1zqQmmgIOx7CB4",
+    "telegram_token": "",
     "login_params": {
         "userId": "",
         "userPass": ""
